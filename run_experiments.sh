@@ -18,8 +18,15 @@ python train.py --cell vanilla --batch_size 128 --name vanilla_bs128
 python train.py --cell vanilla --init xavier     --name vanilla_xavier
 python train.py --cell vanilla --init orthogonal --name vanilla_orthogonal
 
-# 3) Figures
+# 3) Same 3 cells WITH attention (same hyperparameters as in step 1)
+python train.py --cell vanilla --attention --name vanilla_att
+python train.py --cell cifg    --attention --name cifg_att
+python train.py --cell lstmp   --attention --name lstmp_att
+
+# 4) Figures
 python plot_results.py vanilla cifg lstmp
+python plot_results.py vanilla_att cifg_att lstmp_att
+python plot_results.py cifg cifg_att
 python plot_results.py vanilla vanilla_lr3e-3 vanilla_lr3e-4
 python plot_results.py vanilla vanilla_sgd vanilla_rmsprop
 python plot_results.py vanilla vanilla_bs32 vanilla_bs128

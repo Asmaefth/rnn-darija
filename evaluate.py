@@ -30,7 +30,7 @@ for row in rows:
                                                    csv_path=args["csv"], seed=args["seed"])
     model = Seq2Seq(len(src_vocab), len(tgt_vocab), args["cell"], args["emb_size"],
                     args["hidden_size"], args["num_layers"], args["proj_size"],
-                    args["dropout"]).to(device)
+                    args["dropout"], args.get("attention", False)).to(device)
     model.load_state_dict(torch.load(f"checkpoints/{name}.pt", map_location=device))
     bleu, chrf, examples = evaluate_bleu(model, test_pairs, src_vocab, tgt_vocab, device)
     row["bleu"], row["chrf"] = round(bleu, 2), round(chrf, 2)

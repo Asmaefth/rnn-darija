@@ -33,6 +33,7 @@ def get_args():
     p.add_argument("--proj_size", type=int, default=256, help="only for lstmp")
     p.add_argument("--num_layers", type=int, default=2)
     p.add_argument("--dropout", type=float, default=0.3)
+    p.add_argument("--attention", action="store_true", help="add attention to the decoder")
     p.add_argument("--optimizer", default="adam", choices=["adam", "sgd", "rmsprop"])
     p.add_argument("--lr", type=float, default=1e-3)
     p.add_argument("--batch_size", type=int, default=64)
@@ -99,10 +100,11 @@ def main():
                                              csv_path=args.csv, seed=args.seed)
 
     model = Seq2Seq(len(src_vocab), len(tgt_vocab), args.cell, args.emb_size,
-                    args.hidden_size, args.num_layers, args.proj_size, args.dropout).to(device)
+                    args.hidden_size, args.num_layers, args.proj_size, args.dropout,
+                    args.attention).to(device)
     init_weights(model, args.init)
     n_params = count_parameters(model)
-    print(f"Run {name} | cell={args.cell} | trainable parameters={n_params:,} | device={device}")
+    print(f"Run {name} | cell={args.cell} | attention={args.attention} | trainable parameters={n_params:,} | device={device}")
 
     optimizers = {"adam": torch.optim.Adam, "sgd": torch.optim.SGD, "rmsprop": torch.optim.RMSprop}
     optimizer = optimizers[args.optimizer](model.parameters(), lr=args.lr)
@@ -132,7 +134,7 @@ def main():
 
     with open(f"results/{name}_history.json", "w") as f:
         json.dump({**history, "args": vars(args), "examples": examples}, f, indent=2)
-    row = {"name": name, "cell": args.cell, "params": n_params, "optimizer": args.optimizer,
+    row = {"name": name, "cell": args.cell, "attention": args.attention, "params": n_params, "optimizer": args.optimizer,
            "lr": args.lr, "batch_size": args.batch_size, "init": args.init,
            "best_val_loss": round(best_val, 3), "test_loss": round(test_loss, 3),
            "bleu": round(bleu, 2), "chrf": round(chrf, 2), "minutes": round(train_time / 60, 1)}
